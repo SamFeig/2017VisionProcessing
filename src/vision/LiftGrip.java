@@ -26,6 +26,7 @@ import org.opencv.*;
 * @author GRIP
 */
 public class LiftGrip {
+	
 	public static void main(String args[]) {
 		
 		System.loadLibrary("opencv_java310");
