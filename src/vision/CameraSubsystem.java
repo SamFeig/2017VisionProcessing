@@ -1,4 +1,4 @@
-package vision;
+package Vision;
 //package org.usfirst.frc.team503.robot.subsystems;
 
 import edu.wpi.first.wpilibj.CameraServer;

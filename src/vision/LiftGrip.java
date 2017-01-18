@@ -1,4 +1,4 @@
-package vision;
+package Vision;
 
 import java.io.File;
 import java.io.FileWriter;

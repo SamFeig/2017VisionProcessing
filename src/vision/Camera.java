@@ -1,4 +1,4 @@
-package vision;
+package Vision;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 
