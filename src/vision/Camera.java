@@ -1,24 +1,22 @@
 package vision;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.cscore.*;
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.CameraServerJNI;
+import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.CameraServer;
 
-public class Camera extends Subsystem {
-	public static final double T_FT = 0.85416667; //10.5 in
-	public static final double FOV_PIXEL = 1280; //Camera resolution width
-	public static double T_PIXEL = 292; //dependent on GRIP processing
-    public static final double ANGLE = Math.toRadians(43); //degrees converted to radians
-    
-    public static void main(String args[]) {
-    	
-    		double distance = (T_FT * FOV_PIXEL) / (2.0 * T_PIXEL * Math.tan(ANGLE));
-    		//System.out.println("Angle: " + angle);
-    		System.out.println("Distance: " + distance);
-    		
-    }
-    
-	@Override
-	protected void initDefaultCommand() {
-		
-	}
+
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
+public class Camera {
+	
+	    public void cameraInit() {
+	           
+	    }
+
 
 }

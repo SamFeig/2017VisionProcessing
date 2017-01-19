@@ -1,5 +1,9 @@
 package vision;
 
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 import java.util.HashMap;
 
 import org.opencv.core.*;
@@ -14,7 +23,10 @@ import org.opencv.core.Core.*;
 import org.opencv.features2d.FeatureDetector;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.*;
-import org.opencv.*;
+
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.CameraServer;
 
 /**
 * 2017LiftGrip class.
@@ -25,48 +37,90 @@ import org.opencv.*;
 *
 * @author GRIP
 */
-public class LiftGrip {
-	
-	public static void main(String args[]) {
-		
-		System.loadLibrary("opencv_java310");
-		System.out.println(filterContoursOutput);
-		
-	}
+public class LiftGrip extends Thread {
 
 	//Outputs
-	//private Mat resizeImageOutput = new Mat();
+	private Mat resizeImageOutput = new Mat();
 	private Mat hslThresholdOutput = new Mat();
 	private ArrayList<MatOfPoint> findContoursOutput = new ArrayList<MatOfPoint>();
-	private static ArrayList<MatOfPoint> filterContoursOutput = new ArrayList<MatOfPoint>();
-	private ArrayList<MatOfPoint> rectanglesOutput = new ArrayList<MatOfPoint>();
+	private ArrayList<MatOfPoint> filterContoursOutput = new ArrayList<MatOfPoint>();
 
 	//Sources
 	private Mat source0;
 	private ArrayList<MatOfPoint> source1;
-	static{
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-	}
+	static { System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
 	/**
 	 * This constructor sets up the pipeline
 	 */
-	public LiftGrip() {
+	
+	public static void main(String args[]) {
+		//System.out.println(Core.NATIVE_LIBRARY_NAME);
+		LiftGrip g = new LiftGrip();
 	}
+	public LiftGrip() {
+             UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+             camera.setResolution(640, 480);
+             //camera.
+             
+             CvSink cvSink = CameraServer.getInstance().getVideo();
+            //send data to dashboard //CvSource outputStream = CameraServer.getInstance().putVideo("Blur", 640, 480);
+             
+             source0 = new Mat();
+             //Mat output = new Mat();
+             
+             while(true) {
+                 cvSink.grabFrame(source0);
+                 
+                // Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
+                 //replace with our grip
+                // outputStream.putFrame(output);
+             }
+	}
+	
+  /*  public BufferedImage Mat2BufferedImage(Mat m){
+// The output can be assigned either to a BufferedImage or to an Image
 
-	/**
+    int type = BufferedImage.TYPE_BYTE_GRAY;
+    if ( m.channels() > 1 ) {
+        type = BufferedImage.TYPE_3BYTE_BGR;
+    }
+    int bufferSize = m.channels()*m.cols()*m.rows();
+    byte [] b = new byte[bufferSize];
+    m.get(0,0,b); // get all the pixels
+    BufferedImage image = new BufferedImage(m.cols(),m.rows(), type);
+    final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+    System.arraycopy(b, 0, targetPixels, 0, b.length);  
+    return image;
+}
+    
+    public void displayImage(Image img2) {   
+        //BufferedImage img=ImageIO.read(new File("/HelloOpenCV/lena.png"));
+        ImageIcon icon=new ImageIcon(img2);
+        JFrame frame=new JFrame();
+        frame.setLayout(new FlowLayout());        
+        frame.setSize(img2.getWidth(null)+50, img2.getHeight(null)+50);     
+        JLabel lbl=new JLabel();
+        lbl.setIcon(icon);
+        frame.add(lbl);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    }*/
+    
+    /**
 	 * This is the primary method that runs the entire pipeline and updates the outputs.
 	 */
 	public void process() {
 		//Step  Resize_Image0:
-		/*Mat resizeImageInput = source0;
+		Mat resizeImageInput = source0;
 		double resizeImageWidth = 640.0;
 		double resizeImageHeight = 480;
 		int resizeImageInterpolation = Imgproc.INTER_CUBIC;
 		resizeImage(resizeImageInput, resizeImageWidth, resizeImageHeight, resizeImageInterpolation, resizeImageOutput);
-		*/
+
 		//Step  HSL_Threshold0:
-		Mat hslThresholdInput = source0;//resizeImageOutput;
+		Mat hslThresholdInput = resizeImageOutput;
 		double[] hslThresholdHue = {77.6978417266187, 92.90322580645162};
 		double[] hslThresholdSaturation = {55.03597122302158, 125.11884550084888};
 		double[] hslThresholdLuminance = {121.53776978417265, 255.0};
@@ -92,8 +146,6 @@ public class LiftGrip {
 		double filterContoursMaxRatio = 1000;
 		filterContours(filterContoursContours, filterContoursMinArea, filterContoursMinPerimeter, filterContoursMinWidth, filterContoursMaxWidth, filterContoursMinHeight, filterContoursMaxHeight, filterContoursSolidity, filterContoursMaxVertices, filterContoursMinVertices, filterContoursMinRatio, filterContoursMaxRatio, filterContoursOutput);
 
-		//ArrayList<MatOfPoint> boundingRectangle = filterContoursContours;
-		//boundingRectangle(boundingRectangle);
 	}
 
 	/**
@@ -116,9 +168,9 @@ public class LiftGrip {
 	 * This method is a generated getter for the output of a Resize_Image.
 	 * @return Mat output from Resize_Image.
 	 */
-	/*public Mat resizeImageOutput() {
+	public Mat resizeImageOutput() {
 		return resizeImageOutput;
-	}*/
+	}
 
 	/**
 	 * This method is a generated getter for the output of a HSL_Threshold.
@@ -143,10 +195,6 @@ public class LiftGrip {
 	public ArrayList<MatOfPoint> filterContoursOutput() {
 		return filterContoursOutput;
 	}
-	
-	public ArrayList<MatOfPoint> rectanglesOutput() {
-		return rectanglesOutput;
-	}
 
 
 	/**
@@ -157,10 +205,10 @@ public class LiftGrip {
 	 * @param interpolation The type of interpolation.
 	 * @param output The image in which to store the output.
 	 */
-	/*private void resizeImage(Mat input, double width, double height,
+	private void resizeImage(Mat input, double width, double height,
 		int interpolation, Mat output) {
 		Imgproc.resize(input, output, new Size(width, height), 0.0, 0.0, interpolation);
-	}*/
+	}
 
 	/**
 	 * Segment an image based on hue, saturation, and luminance ranges.
@@ -248,36 +296,9 @@ public class LiftGrip {
 			output.add(contour);
 		}
 	}
-	
-	
-	
-	/*
-	private void boundingRectangle(List<MatOfPoint> inputContours, List<MatOfPoint> output) {
-		 MatOfPoint2f approxCurve = new MatOfPoint2f();
 
-		    //For each contour found
-		    for (int i=0; i<inputContours.size(); i++)
-		    {
-		        //Convert contours(i) from MatOfPoint to MatOfPoint2f
-		        MatOfPoint2f contour2f = new MatOfPoint2f( inputContours.get(i).toArray());
-		        //Processing on mMOP2f1 which is in type MatOfPoint2f
-		        double approxDistance = Imgproc.arcLength(contour2f, true)*0.02;
-		        Imgproc.approxPolyDP(contour2f, approxCurve, approxDistance, true);
 
-		        //Convert back to MatOfPoint
-		        MatOfPoint points = new MatOfPoint(approxCurve.toArray());
 
-		        // Get bounding rect of contour
-		        Rect rect = Imgproc.boundingRect(points);
-
-		         // draw enclosing rectangle (all same color, but you could use variable i to make them unique)
-		      //  Core.rectangle(contour2f, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new (255, 0, 0, 255), 3);
-		        Imgproc.rectangle(contour2f, rect.tl(), rect.br(), new Scalar(255, 0, 0),1, 8,0); 
-		        output.add(points);
-
-		    }
-		}
-*/
 
 }
 
