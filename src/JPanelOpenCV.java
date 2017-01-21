@@ -21,53 +21,71 @@ import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.videoio.VideoCapture;
 
-public class JPanelOpenCV extends JPanel{
+public class JPanelOpenCV /*extends JPanel*/{
 
     BufferedImage image;
-    
+    static VideoCapture camera;
 
     public static void main (String args[]) throws InterruptedException, org.bytedeco.javacv.FrameGrabber.Exception {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        JPanelOpenCV t = new JPanelOpenCV();
+        //JPanelOpenCV t = new JPanelOpenCV();
         
-        FrameRecorder recorder = null;
-        //VideoCapture camera = new VideoCapture(0);
-        FrameGrabber grabber = FrameGrabber.createDefault(0);
-        grabber.start();
+        //FrameRecorder recorder = null;
+        try {
+        camera = new VideoCapture(0);
+        }
+        catch(Exception e) {
+        	e.printStackTrace();
+        }
+        //FrameGrabber grabber = FrameGrabber.createDefault(0);
+        //grabber.start();
         //System.out.println(grabber.grab());
 
         //Mat frame = new Mat();
         //while(true) {
          
-        OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
+        //OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
         
         long i = 0;
         while(i < 100) {
         	i++;
-        IplImage grabbedImage = converter.convert(grabber.grab());
+        	camera.grab();
+        //IplImage grabbedImage = converter.convert(grabber.grab());
         //IplImage iplImage= cvLoadImage("image.png");
 
-        //Mat matImage = new Mat(grabbedImage);
+       /* Mat matImage = new Mat(grabbedImage, true);
+        //matImage = grabbedImage;
+        //IplImage img;
+        */ 
+        	/*
+        bmp = Bitmap.createBitmap(img.width(), img.height(), Bitmap.Config.ARGB_8888);
+
+        bmp.copyPixelsFromBuffer(img.getByteBuffer());
+
+        Mat mROI = new Mat(new Size(img.width(), img.height()), CV_8UC4);
+
+        Utils.bitmapToMat(bmp, mROI);
+        */
+        //BufferedImage image = IplImageToBufferedImage(grabbedImage);
+        //int width  = grabbedImage.width();
+        //int height = grabbedImage.height();
         
-        BufferedImage image = IplImageToBufferedImage(grabbedImage);
-        int width  = grabbedImage.width();
-        int height = grabbedImage.height();
-        
-        
+        /*
 		try {
 			recorder = FrameRecorder.createDefault("output.avi", width, height);
 			recorder.start();
 		} catch (org.bytedeco.javacv.FrameRecorder.Exception e) {
 			e.printStackTrace();
-		}
+		}*/
         
         //CanvasFrame display = new CanvasFrame("Camera", CanvasFrame.getDefaultGamma()/grabber.getGamma());
-		t.window(image, "Original Image", 0, 0);
+		//t.window(image, "Original Image", 0, 0);
         //while (t.isVisible() && (grabbedImage = converter.convert(grabber.grab())) != null) {
             //cvClearMemStorage(storage);
-        	t.repaint();
+        	//t.repaint();
             
        // }
         
@@ -83,23 +101,23 @@ public class JPanelOpenCV extends JPanel{
                     //t.window(t.loadImage("ImageName"), "Image loaded", 0, 0);
                     
                 }  */
-            try {
-				recorder.stop();
+           /* try {
+				//recorder.stop();
 			} catch (org.bytedeco.javacv.FrameRecorder.Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-            grabber.stop();
+			}*/
+           // grabber.stop();
         //camera.release();
     }
     
-    public static BufferedImage IplImageToBufferedImage(IplImage src) {
+  /*  public static BufferedImage IplImageToBufferedImage(IplImage src) {
         OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
         Java2DFrameConverter paintConverter = new Java2DFrameConverter();
         Frame frame = grabberConverter.convert(src);
         return paintConverter.getBufferedImage(frame,1);
-    }
-
+    }*/
+/*
     public void paint(Graphics g) {
         g.drawImage(image, 0, 0, this);
     }
@@ -125,7 +143,7 @@ public class JPanelOpenCV extends JPanel{
 	} catch (InterruptedException e) {
 		e.printStackTrace();
 	}*/
-    }
+    /*}
 
     //Load an image
     public BufferedImage loadImage(String file) {
@@ -169,5 +187,5 @@ public class JPanelOpenCV extends JPanel{
 
         return image;
     }
-
+*/
 }
