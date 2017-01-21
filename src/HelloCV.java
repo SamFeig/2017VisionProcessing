@@ -41,7 +41,7 @@ public class HelloCV{
 	public HelloCV() {
 
 		source0 = new Mat();
-		source0 = Imgcodecs.imread("C:/Users/Z/Documents/Camera_Images/3ft_light.jpg");
+		source0 = Imgcodecs.imread("res/3ft_light.jpg");
 		if (source0.empty()){
 			System.out.println("Couldn't find image");
 		}
@@ -91,7 +91,6 @@ public class HelloCV{
 		double resizeImageHeight = 480;
 		int resizeImageInterpolation = Imgproc.INTER_CUBIC;
 		resizeImage(resizeImageInput, resizeImageWidth, resizeImageHeight, resizeImageInterpolation, resizeImageOutput);
-		//Imgcodecs.imwrite("C:/Users/Z/Documents/Camera_Images/2ft_altered.jpg", resizeImageOutput);
 		
 		//Step  HSL_Threshold0:
 		Mat hslThresholdInput = resizeImageOutput;
@@ -99,16 +98,12 @@ public class HelloCV{
 		double[] hslThresholdSaturation = {55.03597122302158, 125.11884550084888};
 		double[] hslThresholdLuminance = {121.53776978417265, 255.0};
 		hslThreshold(hslThresholdInput, hslThresholdHue, hslThresholdSaturation, hslThresholdLuminance, hslThresholdOutput);
-		Imgcodecs.imwrite("C:/Users/Z/Documents/Camera_Images/3ft_light_altered.jpg", hslThresholdOutput);
 
 		//Step  Find_Contours0:
 		Mat findContoursInput = hslThresholdOutput;
 		boolean findContoursExternalOnly = false;
 		findContours(findContoursInput, findContoursExternalOnly, findContoursOutput);
-		System.out.println(hslThresholdOutput);
-		for (int i = 0; i < findContoursOutput.size(); i++){
-			System.out.println(findContoursOutput.get(i).toString());
-		}
+
 		//Step  Filter_Contours0:
 		ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
 		double filterContoursMinArea = 0;
@@ -128,7 +123,7 @@ public class HelloCV{
 			Imgproc.drawContours(resizeImageOutput, filterContoursOutput, i, new Scalar(0, 0, 0));
 		}
 		
-		Imgcodecs.imwrite("C:/Users/Z/Documents/Camera_Images/3ft_light_altered.jpg", resizeImageOutput);
+		Imgcodecs.imwrite("res/GRIP_output.jpg", resizeImageOutput);
 	}
 
 	/**
