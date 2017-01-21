@@ -35,7 +35,6 @@ public class HelloCV{
 	 */
 	
 	public static void main(String args[]) {
-		//System.out.println(Core.NATIVE_LIBRARY_NAME);
 		HelloCV g = new HelloCV();
 		g.process();
 	}
@@ -106,8 +105,10 @@ public class HelloCV{
 		Mat findContoursInput = hslThresholdOutput;
 		boolean findContoursExternalOnly = false;
 		findContours(findContoursInput, findContoursExternalOnly, findContoursOutput);
-		System.out.println(findContoursOutput.toString());
-
+		System.out.println(hslThresholdOutput);
+		for (int i = 0; i < findContoursOutput.size(); i++){
+			System.out.println(findContoursOutput.get(i).toString());
+		}
 		//Step  Filter_Contours0:
 		ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
 		double filterContoursMinArea = 0;
@@ -123,7 +124,11 @@ public class HelloCV{
 		double filterContoursMaxRatio = 1000;
 		filterContours(filterContoursContours, filterContoursMinArea, filterContoursMinPerimeter, filterContoursMinWidth, filterContoursMaxWidth, filterContoursMinHeight, filterContoursMaxHeight, filterContoursSolidity, filterContoursMaxVertices, filterContoursMinVertices, filterContoursMinRatio, filterContoursMaxRatio, filterContoursOutput);
 		
-		System.out.println(filterContoursOutput.get(0).toString());
+		for (int i = 0; i < findContoursOutput.size(); i++){
+			Imgproc.drawContours(resizeImageOutput, filterContoursOutput, i, new Scalar(0, 0, 0));
+		}
+		
+		Imgcodecs.imwrite("C:/Users/Z/Documents/Camera_Images/3ft_light_altered.jpg", resizeImageOutput);
 	}
 
 	/**
