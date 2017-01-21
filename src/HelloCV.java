@@ -40,7 +40,7 @@ public class HelloCV{
 	}
 	
 	public HelloCV() {
-		source0 = Imgcodecs.imread("res/3ft_light.jpg");
+		source0 = Imgcodecs.imread("res/2ft_light.jpg");
 		if (source0.empty()){
 			System.out.println("Couldn't find image");
 		}
@@ -77,25 +77,8 @@ public class HelloCV{
 		double filterContoursMinRatio = 0.0;
 		double filterContoursMaxRatio = 1000.0;
 		filterContours(filterContoursContours, filterContoursMinArea, filterContoursMinPerimeter, filterContoursMinWidth, filterContoursMaxWidth, filterContoursMinHeight, filterContoursMaxHeight, filterContoursSolidity, filterContoursMaxVertices, filterContoursMinVertices, filterContoursMinRatio, filterContoursMaxRatio, filterContoursOutput);
-		
-		double minX = PICTURE_WIDTH + 1, maxX = -1;
-		
-		for (int i = 0; i < filterContoursOutput.size(); i++){
-			Imgproc.drawContours(source0, filterContoursOutput, i, new Scalar(0, 0, 0));
-			
-			List<Point> contour = filterContoursOutput.get(i).toList();
-			for (int j = 0; j < contour.size(); j++){
-				if (minX > contour.get(0).x){
-					minX = contour.get(0).x;
-				}
-				
-				if (maxX < contour.get(0).x){
-					maxX = contour.get(0).x;
-				}
-			}
-		}
 
-		System.out.println(distanceCalculation(maxX - minX));
+		System.out.println(distanceCalculation());
 		Imgcodecs.imwrite("res/GRIP_output.jpg", source0);
 	}
 
@@ -219,7 +202,26 @@ public class HelloCV{
 		}
 	}
 	
-	private double distanceCalculation(double pixelWidth){
+	private double distanceCalculation(){
+		
+		double minX = PICTURE_WIDTH + 1, maxX = -1;
+		
+		for (int i = 0; i < filterContoursOutput.size(); i++){
+			Imgproc.drawContours(source0, filterContoursOutput, i, new Scalar(0, 0, 0));
+			
+			List<Point> contour = filterContoursOutput.get(i).toList();
+			for (int j = 0; j < contour.size(); j++){
+				if (minX > contour.get(0).x){
+					minX = contour.get(0).x;
+				}
+				
+				if (maxX < contour.get(0).x){
+					maxX = contour.get(0).x;
+				}
+			}
+		}
+		
+		double pixelWidth = maxX - minX;
 		double distance = TARGET_FEET * PICTURE_WIDTH / (2 * pixelWidth * Math.tan(ANGLE));
 		return distance;
 	}
