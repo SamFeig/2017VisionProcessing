@@ -1,4 +1,3 @@
-import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -11,14 +10,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_core.IplImage;
-import org.bytedeco.javacv.CanvasFrame;
-import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.FrameGrabber;
-import org.bytedeco.javacv.FrameRecorder;
-import org.bytedeco.javacv.Java2DFrameConverter;
-import org.bytedeco.javacv.OpenCVFrameConverter;
+
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
@@ -28,7 +20,7 @@ public class JPanelOpenCV /*extends JPanel*/{
     BufferedImage image;
     static VideoCapture camera;
 
-    public static void main (String args[]) throws InterruptedException, org.bytedeco.javacv.FrameGrabber.Exception {
+    public static void main (String args[]) throws InterruptedException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
         //JPanelOpenCV t = new JPanelOpenCV();

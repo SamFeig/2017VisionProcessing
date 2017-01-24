@@ -12,13 +12,14 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
 
 public class HelloCV{
 	//CONSTANTS
 	private final double PICTURE_WIDTH = 640;//FOVpixel
 	private final int PICTURE_HEIGHT = 426;
 	private final double TARGET_FEET = 0.8541667;//Tft
-	private final double ANGLE = Math.toRadians(30);
+	private final double ANGLE = Math.toRadians(26.9);
 	
 	//Outputs
 	private Mat hslThresholdOutput = new Mat();
@@ -26,6 +27,7 @@ public class HelloCV{
 	private ArrayList<MatOfPoint> filterContoursOutput = new ArrayList<MatOfPoint>();
 
 	//Sources
+    VideoCapture camera;
 	private Mat source0;
 	static { System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
@@ -34,21 +36,30 @@ public class HelloCV{
 	 */
 	
 	public static void main(String args[]) {
+
 		HelloCV g = new HelloCV();
-		g.process();
+		while(true){
+			g.process();
+		}
 	}
 	
 	public HelloCV() {
-		source0 = Imgcodecs.imread("res/2ft_light.jpg");
-		if (source0.empty()){
-			System.out.println("Couldn't find image");
-		}
+		source0 = new Mat();
+        try {
+        	camera = new VideoCapture(0);
+        }
+        catch(NullPointerException e) {
+        	System.out.println("Nope2");
+        	e.printStackTrace();
+        }
 	}
 
 	/**
 	 * This is the primary method that runs the entire pipeline and updates the outputs.
 	 */
 	public void process() {
+		
+		camera.read(source0);
 		
 		//Step  HSL_Threshold0:
 		Mat hslThresholdInput = source0;
