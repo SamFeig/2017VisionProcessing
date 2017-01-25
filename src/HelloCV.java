@@ -22,8 +22,8 @@ public class HelloCV{
 	private final double ANGLE = Math.toRadians(26.9);
 	
 	//Outputs
-	private Mat hslThresholdOutput = new Mat();
 	private Mat rgbThresholdOutput = new Mat();
+	private Mat hslThresholdOutput = new Mat();
 	private Mat cvBitwiseOrOutput = new Mat();
 	private Mat cvDilateOutput = new Mat();
 	private ArrayList<MatOfPoint> findContoursOutput = new ArrayList<MatOfPoint>();
@@ -33,7 +33,6 @@ public class HelloCV{
 	//Sources
     VideoCapture camera;
 	private Mat source0;
-	private Mat source1;
 	static { System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
 	/**
@@ -50,7 +49,6 @@ public class HelloCV{
 	
 	public HelloCV() {
 		source0 = new Mat();
-		source1 = new Mat();
         try {
         	camera = new VideoCapture(0);
         }
@@ -65,38 +63,33 @@ public class HelloCV{
 	 */
 	public void process() {
 		
-		camera.read(source0);
-		
-		/**
-		TODO: TEST source1 = source0 (may not work as expected)
-		*/
-		source1 = source0;
-		//source0 = Imgcodecs.imread("res/8ft.jpg");
+		//camera.read(source0);
+		source0 = Imgcodecs.imread("res/7ft.jpg");
 		
 		//Step  RGB_Threshold0:
 		Mat rgbThresholdInput = source0;
-		double[] rgbThresholdRed = {151.27118644067792, 240.11299435028246};
-		double[] rgbThresholdGreen = {237.00564971751413, 255.0};
-		double[] rgbThresholdBlue = {163.81233995854163, 255.0};
+		double[] rgbThresholdRed = {112.85310734463273, 255.0};
+		double[] rgbThresholdGreen = {242.20338983050848, 255.0};
+		double[] rgbThresholdBlue = {249.80225988700565, 255.0};
 		rgbThreshold(rgbThresholdInput, rgbThresholdRed, rgbThresholdGreen, rgbThresholdBlue, rgbThresholdOutput);
 
 		//Step  HSL_Threshold0:
-		Mat hslThresholdInput = source1;
-		double[] hslThresholdHue = {22.052188757468596, 180.0};
-		double[] hslThresholdSaturation = {144.06779661016952, 255.0};
-		double[] hslThresholdLuminance = {151.97079624436043, 255.0};
+		Mat hslThresholdInput = source0;
+		double[] hslThresholdHue = {67.81490062187538, 180.0};
+		double[] hslThresholdSaturation = {117.65536723163845, 255.0};
+		double[] hslThresholdLuminance = {130.360626752835, 255.0};
 		hslThreshold(hslThresholdInput, hslThresholdHue, hslThresholdSaturation, hslThresholdLuminance, hslThresholdOutput);
 
 		//Step  CV_bitwise_or0:
 		Mat cvBitwiseOrSrc1 = rgbThresholdOutput;
 		Mat cvBitwiseOrSrc2 = hslThresholdOutput;
 		cvBitwiseOr(cvBitwiseOrSrc1, cvBitwiseOrSrc2, cvBitwiseOrOutput);
-		
+
 		//Step  CV_dilate0:
 		Mat cvDilateSrc = cvBitwiseOrOutput;
 		Mat cvDilateKernel = new Mat();
 		Point cvDilateAnchor = new Point(-1, -1);
-		double cvDilateIterations = 1.0;
+		double cvDilateIterations = 2.0;
 		int cvDilateBordertype = Core.BORDER_CONSTANT;
 		Scalar cvDilateBordervalue = new Scalar(-1);
 		cvDilate(cvDilateSrc, cvDilateKernel, cvDilateAnchor, cvDilateIterations, cvDilateBordertype, cvDilateBordervalue, cvDilateOutput);
@@ -108,7 +101,7 @@ public class HelloCV{
 
 		//Step  Filter_Contours0:
 		ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
-		double filterContoursMinArea = 1500.0;
+		double filterContoursMinArea = 400.0;
 		double filterContoursMinPerimeter = 0.0;
 		double filterContoursMinWidth = 0.0;
 		double filterContoursMaxWidth = 1000.0;
@@ -120,7 +113,7 @@ public class HelloCV{
 		double filterContoursMinRatio = 0.0;
 		double filterContoursMaxRatio = 1000.0;
 		filterContours(filterContoursContours, filterContoursMinArea, filterContoursMinPerimeter, filterContoursMinWidth, filterContoursMaxWidth, filterContoursMinHeight, filterContoursMaxHeight, filterContoursSolidity, filterContoursMaxVertices, filterContoursMinVertices, filterContoursMinRatio, filterContoursMaxRatio, filterContoursOutput);
-
+		
 		System.out.println(distanceCalculation());
 		Imgcodecs.imwrite("res/GRIP_output.jpg", source0);
 	}
@@ -131,14 +124,6 @@ public class HelloCV{
 	 */
 	public void setsource0(Mat source0) {
 		this.source0 = source0;
-	}
-
-	/**
-	 * This method is a generated setter for source1.
-	 * @param source the Mat to set
-	 */
-	public void setsource1(Mat source1) {
-		this.source1 = source1;
 	}
 
 	/**
@@ -326,6 +311,9 @@ public class HelloCV{
 		}
 	}
 	
+	/**
+	 * TODO: Fix distance math due to algorithm finding larger area. Can also be fixed with more work on the algorithm
+	 */
 	private double distanceCalculation(){
 		
 		double minX = PICTURE_WIDTH + 1, maxX = -1;
