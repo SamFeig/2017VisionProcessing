@@ -63,8 +63,8 @@ public class HelloCV{
 	 */
 	public void process() {
 		
-		//camera.read(source0);
-		source0 = Imgcodecs.imread("res/7ft.jpg");
+		camera.read(source0);
+		//source0 = Imgcodecs.imread("res/7ft.jpg");
 		
 		//Step  RGB_Threshold0:
 		Mat rgbThresholdInput = source0;
