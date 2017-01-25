@@ -23,12 +23,17 @@ public class HelloCV{
 	
 	//Outputs
 	private Mat hslThresholdOutput = new Mat();
+	private Mat rgbThresholdOutput = new Mat();
+	private Mat cvBitwiseOrOutput = new Mat();
+	private Mat cvDilateOutput = new Mat();
 	private ArrayList<MatOfPoint> findContoursOutput = new ArrayList<MatOfPoint>();
 	private ArrayList<MatOfPoint> filterContoursOutput = new ArrayList<MatOfPoint>();
+
 
 	//Sources
     VideoCapture camera;
 	private Mat source0;
+	private Mat source1;
 	static { System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
 	/**
@@ -45,6 +50,7 @@ public class HelloCV{
 	
 	public HelloCV() {
 		source0 = new Mat();
+		source1 = new Mat();
         try {
         	camera = new VideoCapture(0);
         }
@@ -61,28 +67,55 @@ public class HelloCV{
 		
 		camera.read(source0);
 		
+		/**
+		TODO: TEST source1 = source0 (may not work as expected)
+		*/
+		source1 = source0;
+		//source0 = Imgcodecs.imread("res/8ft.jpg");
+		
+		//Step  RGB_Threshold0:
+		Mat rgbThresholdInput = source0;
+		double[] rgbThresholdRed = {151.27118644067792, 240.11299435028246};
+		double[] rgbThresholdGreen = {237.00564971751413, 255.0};
+		double[] rgbThresholdBlue = {163.81233995854163, 255.0};
+		rgbThreshold(rgbThresholdInput, rgbThresholdRed, rgbThresholdGreen, rgbThresholdBlue, rgbThresholdOutput);
+
 		//Step  HSL_Threshold0:
-		Mat hslThresholdInput = source0;
-		double[] hslThresholdHue = {43.70503597122302, 180.0};
-		double[] hslThresholdSaturation = {126.12410071942446, 255.0};
-		double[] hslThresholdLuminance = {133.00359712230215, 255.0};
+		Mat hslThresholdInput = source1;
+		double[] hslThresholdHue = {22.052188757468596, 180.0};
+		double[] hslThresholdSaturation = {144.06779661016952, 255.0};
+		double[] hslThresholdLuminance = {151.97079624436043, 255.0};
 		hslThreshold(hslThresholdInput, hslThresholdHue, hslThresholdSaturation, hslThresholdLuminance, hslThresholdOutput);
 
+		//Step  CV_bitwise_or0:
+		Mat cvBitwiseOrSrc1 = rgbThresholdOutput;
+		Mat cvBitwiseOrSrc2 = hslThresholdOutput;
+		cvBitwiseOr(cvBitwiseOrSrc1, cvBitwiseOrSrc2, cvBitwiseOrOutput);
+		
+		//Step  CV_dilate0:
+		Mat cvDilateSrc = cvBitwiseOrOutput;
+		Mat cvDilateKernel = new Mat();
+		Point cvDilateAnchor = new Point(-1, -1);
+		double cvDilateIterations = 1.0;
+		int cvDilateBordertype = Core.BORDER_CONSTANT;
+		Scalar cvDilateBordervalue = new Scalar(-1);
+		cvDilate(cvDilateSrc, cvDilateKernel, cvDilateAnchor, cvDilateIterations, cvDilateBordertype, cvDilateBordervalue, cvDilateOutput);
+
 		//Step  Find_Contours0:
-		Mat findContoursInput = hslThresholdOutput;
+		Mat findContoursInput = cvDilateOutput;
 		boolean findContoursExternalOnly = false;
 		findContours(findContoursInput, findContoursExternalOnly, findContoursOutput);
 
 		//Step  Filter_Contours0:
 		ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
-		double filterContoursMinArea = 2000.0;
+		double filterContoursMinArea = 1500.0;
 		double filterContoursMinPerimeter = 0.0;
 		double filterContoursMinWidth = 0.0;
 		double filterContoursMaxWidth = 1000.0;
 		double filterContoursMinHeight = 0.0;
 		double filterContoursMaxHeight = 1000.0;
-		double[] filterContoursSolidity = {0.0, 100};
-		double filterContoursMaxVertices = 1000000.0;
+		double[] filterContoursSolidity = {0.0, 100.0};
+		double filterContoursMaxVertices = 1.0E8;
 		double filterContoursMinVertices = 0.0;
 		double filterContoursMinRatio = 0.0;
 		double filterContoursMaxRatio = 1000.0;
@@ -101,11 +134,43 @@ public class HelloCV{
 	}
 
 	/**
+	 * This method is a generated setter for source1.
+	 * @param source the Mat to set
+	 */
+	public void setsource1(Mat source1) {
+		this.source1 = source1;
+	}
+
+	/**
+	 * This method is a generated getter for the output of a RGB_Threshold.
+	 * @return Mat output from RGB_Threshold.
+	 */
+	public Mat rgbThresholdOutput() {
+		return rgbThresholdOutput;
+	}
+
+	/**
 	 * This method is a generated getter for the output of a HSL_Threshold.
 	 * @return Mat output from HSL_Threshold.
 	 */
 	public Mat hslThresholdOutput() {
 		return hslThresholdOutput;
+	}
+
+	/**
+	 * This method is a generated getter for the output of a CV_bitwise_or.
+	 * @return Mat output from CV_bitwise_or.
+	 */
+	public Mat cvBitwiseOrOutput() {
+		return cvBitwiseOrOutput;
+	}
+
+	/**
+	 * This method is a generated getter for the output of a CV_dilate.
+	 * @return Mat output from CV_dilate.
+	 */
+	public Mat cvDilateOutput() {
+		return cvDilateOutput;
 	}
 
 	/**
@@ -126,6 +191,21 @@ public class HelloCV{
 
 
 	/**
+	 * Segment an image based on color ranges.
+	 * @param input The image on which to perform the RGB threshold.
+	 * @param red The min and max red.
+	 * @param green The min and max green.
+	 * @param blue The min and max blue.
+	 * @param output The image in which to store the output.
+	 */
+	private void rgbThreshold(Mat input, double[] red, double[] green, double[] blue,
+		Mat out) {
+		Imgproc.cvtColor(input, out, Imgproc.COLOR_BGR2RGB);
+		Core.inRange(out, new Scalar(red[0], green[0], blue[0]),
+			new Scalar(red[1], green[1], blue[1]), out);
+	}
+
+	/**
 	 * Segment an image based on hue, saturation, and luminance ranges.
 	 *
 	 * @param input The image on which to perform the HSL threshold.
@@ -139,6 +219,40 @@ public class HelloCV{
 		Imgproc.cvtColor(input, out, Imgproc.COLOR_BGR2HLS);
 		Core.inRange(out, new Scalar(hue[0], lum[0], sat[0]),
 			new Scalar(hue[1], lum[1], sat[1]), out);
+	}
+
+	/**
+	 * Computes the per channel or of two images.
+	 * @param src1 The first image to use.
+	 * @param src2 The second image to use.
+	 * @param dst the result image when the or is performed.
+	 */
+	private void cvBitwiseOr(Mat src1, Mat src2, Mat dst) {
+		Core.bitwise_or(src1, src2, dst);
+	}
+
+	/**
+	 * Expands area of higher value in an image.
+	 * @param src the Image to dilate.
+	 * @param kernel the kernel for dilation.
+	 * @param anchor the center of the kernel.
+	 * @param iterations the number of times to perform the dilation.
+	 * @param borderType pixel extrapolation method.
+	 * @param borderValue value to be used for a constant border.
+	 * @param dst Output Image.
+	 */
+	private void cvDilate(Mat src, Mat kernel, Point anchor, double iterations,
+	int borderType, Scalar borderValue, Mat dst) {
+		if (kernel == null) {
+			kernel = new Mat();
+		}
+		if (anchor == null) {
+			anchor = new Point(-1,-1);
+		}
+		if (borderValue == null){
+			borderValue = new Scalar(-1);
+		}
+		Imgproc.dilate(src, dst, kernel, anchor, (int)iterations, borderType, borderValue);
 	}
 
 	/**
